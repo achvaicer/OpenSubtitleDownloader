@@ -18,9 +18,9 @@ namespace OpenSubtitleDownloader
         private static Thread _thread;
         private static readonly string UserAgent = ConfigurationManager.AppSettings["UserAgent"];
         private static readonly string Language = ConfigurationManager.AppSettings["Language"];
-        private static IAnonymousClient _client = Osdb.Login(Language, UserAgent);
-        private static string[] Directories = ConfigurationManager.AppSettings["Directories"].Split(new [] {';'});
-        private static string[] VideoExtensions = ConfigurationManager.AppSettings["VideoExtensions"].Split(new[] {';'});
+        private static readonly IAnonymousClient _client = Osdb.Login(Language, UserAgent);
+        private static readonly string[] Directories = ConfigurationManager.AppSettings["Directories"].Split(new [] {';'});
+        private static readonly string[] VideoExtensions = ConfigurationManager.AppSettings["VideoExtensions"].Split(new[] {';'});
 
         public OpenSubtitleDownloader()
         {
@@ -45,18 +45,38 @@ namespace OpenSubtitleDownloader
             {
                 foreach (var directory in Directories)
                 {
-                    var files = Directory.GetFiles(directory, extensions);
-                    foreach (var file in files)
-                    {
-                        if (!File.Exists(Path.ChangeExtension(file, "srt")))
-                        {
-                            var subtitle = _client.SearchSubtitlesFromFile(Language, file).FirstOrDefault();
-                            if (subtitle != null)
-                                _client.DownloadSubtitleToPath(Path.GetFullPath(file), subtitle);
-                        }
-                    }
+                    SearchDirectories(directory, extensions);
                 }
             }
+        }
+
+        private static void SearchDirectories(string directory, string extensions)
+        {
+            var directories = Directory.GetDirectories(directory);
+            foreach (var dir in directories)
+            {
+                SearchFiles(dir, extensions);
+                SearchDirectories(dir, extensions);
+            }
+        }
+
+        private static void SearchFiles(string directory, string extensions)
+        {
+            var files = Directory.GetFiles(directory, extensions);
+            foreach (var file in files)
+            {
+                if (!File.Exists(Path.ChangeExtension(file, "srt")))
+                {
+                    DownloadSubtitle(file);
+                }
+            }
+        }
+
+        private static void DownloadSubtitle(string file)
+        {
+            var subtitle = _client.SearchSubtitlesFromFile(Language, file).FirstOrDefault();
+            if (subtitle != null)
+                _client.DownloadSubtitleToPath(Path.GetFullPath(file), subtitle);
         }
     }
 }

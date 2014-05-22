@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
+using NLog;
 using OSDBnet;
 using OpenSubtitleDownloader.Comparers;
 
@@ -17,6 +18,7 @@ namespace OpenSubtitleDownloader
         private static readonly IAnonymousClient _client = Osdb.Login(Language, UserAgent);
         private static readonly string[] Directories = ConfigurationManager.AppSettings["Directories"].Split(new [] {';'});
         private static readonly string[] VideoExtensions = ConfigurationManager.AppSettings["VideoExtensions"].Split(new[] {';'});
+        private static Logger _logger = LogManager.GetCurrentClassLogger();
 
         private static readonly IList<IEqualityComparer<string>> Comparers = new List<IEqualityComparer<string>>()
             {
@@ -78,20 +80,27 @@ namespace OpenSubtitleDownloader
 
         private static void SearchSubtitle(string file)
         {
-            
-            var subtitles = _client.SearchSubtitlesFromFile(Language, file);
-            var subtitle = FindBestFit(file, subtitles);
+            try
+            {
+                var subtitles = _client.SearchSubtitlesFromFile(Language, file);
+                var subtitle = FindBestFit(file, subtitles);
 
-            if (subtitle == null) return;
-            DownloadSubtitle(file, subtitle);
+                if (subtitle == null) return;
+                DownloadSubtitle(file, subtitle);
+            }
+            catch (System.Exception exception)
+            {
+                _logger.Error("Error trying to download subtitle for {0}./n Exception {1}", file, exception.Message);
+            }
         }
 
         private static void DownloadSubtitle(string file, Subtitle subtitle)
         {
             var downloaded = _client.DownloadSubtitleToPath(Path.GetDirectoryName(file), subtitle);
             var comp = new ExactEqualyComparer();
-            if (!comp.Equals(file, downloaded))
-                File.Move(downloaded, Path.ChangeExtension(file, Path.GetExtension(downloaded)));
+            if (comp.Equals(file, downloaded)) return;
+            File.Move(downloaded, Path.ChangeExtension(file, Path.GetExtension(downloaded)));
+            _logger.Info("Downloaded subtitle for {0}", file);
         }
 
         private static Subtitle FindBestFit(string file, IList<Subtitle> subtitles)

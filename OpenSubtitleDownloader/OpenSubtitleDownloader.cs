@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
-using System.Text;
 using System.Threading;
 using OSDBnet;
+using OpenSubtitleDownloader.Comparers;
 
 namespace OpenSubtitleDownloader
 {
@@ -21,6 +17,12 @@ namespace OpenSubtitleDownloader
         private static readonly IAnonymousClient _client = Osdb.Login(Language, UserAgent);
         private static readonly string[] Directories = ConfigurationManager.AppSettings["Directories"].Split(new [] {';'});
         private static readonly string[] VideoExtensions = ConfigurationManager.AppSettings["VideoExtensions"].Split(new[] {';'});
+
+        private static readonly IList<IEqualityComparer<string>> Comparers = new List<IEqualityComparer<string>>()
+            {
+                new ExactEqualyComparer(),
+                new IgnoreCaseComparer()
+            };
 
         public OpenSubtitleDownloader()
         {
@@ -40,17 +42,19 @@ namespace OpenSubtitleDownloader
 
         internal void LoopCheck()
         {
-            var extensions = string.Join("|", VideoExtensions.Select(x => string.Format("*.{0}", x)));
+            var extensions = VideoExtensions.Select(x => string.Format("*.{0}", x));
             while (true)
             {
                 foreach (var directory in Directories)
                 {
+                    SearchFiles(directory, extensions);
                     SearchDirectories(directory, extensions);
                 }
+                Thread.Sleep(600000);
             }
         }
 
-        private static void SearchDirectories(string directory, string extensions)
+        private static void SearchDirectories(string directory, IEnumerable<string> extensions)
         {
             var directories = Directory.GetDirectories(directory);
             foreach (var dir in directories)
@@ -60,23 +64,45 @@ namespace OpenSubtitleDownloader
             }
         }
 
-        private static void SearchFiles(string directory, string extensions)
+        private static void SearchFiles(string directory, IEnumerable<string> extensions)
         {
-            var files = Directory.GetFiles(directory, extensions);
+            var files =  extensions.SelectMany(x => Directory.EnumerateFiles(directory, x));
             foreach (var file in files)
             {
                 if (!File.Exists(Path.ChangeExtension(file, "srt")))
                 {
-                    DownloadSubtitle(file);
+                    SearchSubtitle(file);
                 }
             }
         }
 
-        private static void DownloadSubtitle(string file)
+        private static void SearchSubtitle(string file)
         {
-            var subtitle = _client.SearchSubtitlesFromFile(Language, file).FirstOrDefault();
-            if (subtitle != null)
-                _client.DownloadSubtitleToPath(Path.GetFullPath(file), subtitle);
+            
+            var subtitles = _client.SearchSubtitlesFromFile(Language, file);
+            var subtitle = FindBestFit(file, subtitles);
+
+            if (subtitle == null) return;
+            DownloadSubtitle(file, subtitle);
+        }
+
+        private static void DownloadSubtitle(string file, Subtitle subtitle)
+        {
+            var downloaded = _client.DownloadSubtitleToPath(Path.GetDirectoryName(file), subtitle);
+            var comp = new ExactEqualyComparer();
+            if (!comp.Equals(file, downloaded))
+                File.Move(downloaded, Path.ChangeExtension(file, Path.GetExtension(downloaded)));
+        }
+
+        private static Subtitle FindBestFit(string file, IList<Subtitle> subtitles)
+        {
+            foreach (var comparer in Comparers)
+            {
+                var subtitle = subtitles.FirstOrDefault(x => comparer.Equals(x.SubtitleFileName, file));
+                if (subtitle != null)
+                    return subtitle;
+            }
+            return null;
         }
     }
 }

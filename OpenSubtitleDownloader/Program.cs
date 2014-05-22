@@ -13,12 +13,16 @@ namespace OpenSubtitleDownloader
         /// </summary>
         static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[] 
-            { 
-                new OpenSubtitleDownloader() 
-            };
-            ServiceBase.Run(ServicesToRun);
+            if (Environment.UserInteractive)
+                new OpenSubtitleDownloader().LoopCheck();
+            else
+            {
+                var ServicesToRun = new ServiceBase[]
+                    {
+                        new OpenSubtitleDownloader()
+                    };
+                ServiceBase.Run(ServicesToRun);
+            }
         }
     }
 }

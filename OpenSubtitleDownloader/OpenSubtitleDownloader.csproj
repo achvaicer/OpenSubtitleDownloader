@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Comparers\ExactEqualyComparer.cs" />
+    <Compile Include="Comparers\IgnoreCaseComparer.cs" />
     <Compile Include="OpenSubtitleDownloader.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -62,6 +64,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

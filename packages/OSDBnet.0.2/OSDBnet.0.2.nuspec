@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>OSDBnet</id>
+    <version>0.2</version>
+    <title>OSDBnet</title>
+    <authors>Kappy</authors>
+    <owners>Kappy</owners>
+    <projectUrl>https://github.com/kappy/OSDB.net</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An open source library to consume the OpenSubtitles.org service written in C#</description>
+    <summary>An open source library to consume the OpenSubtitles.org service written in C#</summary>
+    <copyright>Copyright 2011</copyright>
+    <tags>subs subtitles opensubtitles osdb movies</tags>
+    <dependencies>
+      <dependency id="SharpZipLib" version="0.86.0" />
+      <dependency id="xmlrpcnet" version="2.5.0" />
+    </dependencies>
+  </metadata>
+</package>

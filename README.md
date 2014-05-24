@@ -14,9 +14,6 @@ Well, now it's possible.
  1. Download the [most recent release](https://github.com/achvaicer/OpenSubtitleDownloader/releases/download/v0.1/OpenSubtitleDownloader-v0.1.zip)
  2. Extract it all in you favorite folder.
  3. Edit the OpenSubtitleDownloader.exe.config file in the element **Directories** with the folders with your movies and series.
-    
-    <add key="Directories" value="Put your folders to be searched here separated by ;" />
- 
  4. Execute the **install.bat** as Administrator.
 
 

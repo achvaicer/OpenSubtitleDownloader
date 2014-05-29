@@ -59,6 +59,10 @@
   <ItemGroup>
     <Compile Include="Comparers\ExactEqualyComparer.cs" />
     <Compile Include="Comparers\IgnoreCaseComparer.cs" />
+    <Compile Include="Comparers\SeasonEpisode.cs" />
+    <Compile Include="Comparers\SeasonEpisodeComparer.cs" />
+    <Compile Include="Comparers\SeasonEpisodeLastComparer.cs" />
+    <Compile Include="Comparers\SplitLastComparer.cs" />
     <Compile Include="OpenSubtitleDownloader.cs">
       <SubType>Component</SubType>
     </Compile>

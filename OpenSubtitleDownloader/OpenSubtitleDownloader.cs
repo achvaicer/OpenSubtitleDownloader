@@ -23,7 +23,10 @@ namespace OpenSubtitleDownloader
         private static readonly IList<IEqualityComparer<string>> Comparers = new List<IEqualityComparer<string>>()
             {
                 new ExactEqualyComparer(),
-                new IgnoreCaseComparer()
+                new IgnoreCaseComparer(),
+                new SeasonEpisodeLastComparer(),
+                new SplitLastComparer(),
+                new SeasonEpisodeComparer()
             };
 
         public OpenSubtitleDownloader()
@@ -47,11 +50,7 @@ namespace OpenSubtitleDownloader
             var extensions = VideoExtensions.Select(x => string.Format("*.{0}", x));
             while (true)
             {
-                foreach (var directory in Directories)
-                {
-                    SearchFiles(directory, extensions);
-                    SearchDirectories(directory, extensions);
-                }
+                IterateDirectories(extensions, Directories);
                 Thread.Sleep(600000);
             }
         }
@@ -59,6 +58,11 @@ namespace OpenSubtitleDownloader
         private static void SearchDirectories(string directory, IEnumerable<string> extensions)
         {
             var directories = Directory.GetDirectories(directory);
+            IterateDirectories(extensions, directories);
+        }
+
+        private static void IterateDirectories(IEnumerable<string> extensions, string[] directories)
+        {
             foreach (var dir in directories)
             {
                 SearchFiles(dir, extensions);
@@ -105,9 +109,10 @@ namespace OpenSubtitleDownloader
 
         private static Subtitle FindBestFit(string file, IList<Subtitle> subtitles)
         {
+            var filename = Path.GetFileNameWithoutExtension(file);
             foreach (var comparer in Comparers)
             {
-                var subtitle = subtitles.FirstOrDefault(x => comparer.Equals(x.SubtitleFileName, file));
+                var subtitle = subtitles.FirstOrDefault(x => comparer.Equals(Path.GetFileNameWithoutExtension(x.SubtitleFileName), filename));
                 if (subtitle != null)
                     return subtitle;
             }

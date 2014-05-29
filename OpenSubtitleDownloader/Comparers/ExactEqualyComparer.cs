@@ -7,7 +7,7 @@ namespace OpenSubtitleDownloader.Comparers
     {
         public bool Equals(string x, string y)
         {
-            return Path.GetFileNameWithoutExtension(x) == Path.GetFileNameWithoutExtension(y);
+            return x == y;
         }
 
         public int GetHashCode(string obj)

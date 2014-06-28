@@ -55,6 +55,13 @@ namespace OpenSubtitleDownloader
             }
         }
 
+		internal void SingleExecution()
+		{
+			var extensions = VideoExtensions.Select(x => string.Format("*.{0}", x));
+			IterateDirectories(extensions, Directories);
+		}
+
+
         private static void SearchDirectories(string directory, IEnumerable<string> extensions)
         {
             var directories = Directory.GetDirectories(directory);

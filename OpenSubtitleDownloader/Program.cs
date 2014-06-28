@@ -15,7 +15,7 @@ namespace OpenSubtitleDownloader
         /// </summary>
         static void Main(string[] args)
         {
-            if (Environment.UserInteractive)
+            if (Environment.UserInteractive || Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 if (!args.Any())
                     new OpenSubtitleDownloader().LoopCheck();
@@ -31,6 +31,9 @@ namespace OpenSubtitleDownloader
                         case "/uninstall":
                             Uninstall();
                             break;
+						case "/single":
+							new OpenSubtitleDownloader ().SingleExecution ();
+							break;
                     }
                 }
             }

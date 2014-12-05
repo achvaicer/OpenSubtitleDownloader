@@ -1,6 +1,8 @@
 OpenSubtitle Downloader
 ======================
 
+[![Build status](https://ci.appveyor.com/api/projects/status/q7638k3scynitlbf?svg=true)](https://ci.appveyor.com/project/achvaicer/opensubtitledownloader)
+
 A simple windows service that download the subtitle of movies and series on specific directories.
 
 What if you could download you movies and series to your folder, and their subtitles just be downloaded without your intervention?

@@ -13,7 +13,7 @@ Well, now it's possible.
 
 ## Installation guide
 
- 1. Download the [most recent release](https://github.com/achvaicer/OpenSubtitleDownloader/releases/download/v0.1/OpenSubtitleDownloader-v0.1.zip)
+ 1. Download the [most recent release](https://github.com/achvaicer/OpenSubtitleDownloader/releases/download/0.3/OpenSubtitleDownloader-Windows-0.3.zip)
  2. Extract it all in you favorite folder.
  3. Edit the OpenSubtitleDownloader.exe.config file in the element **Directories** with the folders with your movies and series.
  4. Execute the **install.bat** as Administrator.

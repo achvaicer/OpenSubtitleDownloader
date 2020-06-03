@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration.Install;
-using System.Linq;
-using System.Reflection;
-using System.ServiceProcess;
-using System.Text;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using OpenSubtitleDownloader.Config;
 
 namespace OpenSubtitleDownloader
 {
@@ -15,55 +13,19 @@ namespace OpenSubtitleDownloader
         /// </summary>
         static void Main(string[] args)
         {
-            if (Environment.UserInteractive || Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                if (!args.Any())
-                    new OpenSubtitleDownloader().LoopCheck();
-                else
-                {
-                    switch (args[0].Trim())
-                    {
-                        case "/i":
-                        case "/install":
-                            Install();
-                            break;
-                        case "/u":
-                        case "/uninstall":
-                            Uninstall();
-                            break;
-						case "/single":
-							new OpenSubtitleDownloader ().SingleExecution ();
-							break;
-                    }
-                }
-            }
-            else
-            {
-                var ServicesToRun = new ServiceBase[]
-                    {
-                        new OpenSubtitleDownloader()
-                    };
-                ServiceBase.Run(ServicesToRun);
-            }
+            var config = new ConfigurationBuilder()
+                            .SetBasePath(AppContext.BaseDirectory)
+                            .AddJsonFile("appsettings.json")
+                            // .AddEnvironmentVariables()
+                            .Build();
+
+
+            
+            var runtimeConfig = new RuntimeConfig(config);
+            var worker = new Worker(runtimeConfig);
+            worker.SingleExecution();
         }
 
-        private static void Install()
-        {
-            try
-            {
-                var svc = new ServiceController(ProjectInstaller.ServiceName);
-                Console.WriteLine(svc.DisplayName);
-                if (svc.Status == ServiceControllerStatus.Running)
-                    svc.Stop();
-                Uninstall();
-            }
-            catch (InvalidOperationException) { }
-            ManagedInstallerClass.InstallHelper(new string[] { Assembly.GetExecutingAssembly().Location });
-        }
-
-        private static void Uninstall()
-        {
-            ManagedInstallerClass.InstallHelper(new string[] { "/u", Assembly.GetExecutingAssembly().Location });
-        }
+        
     }
 }

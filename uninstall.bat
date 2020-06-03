@@ -1,1 +1,0 @@
-call OpenSubtitleDownloader.exe /uninstall

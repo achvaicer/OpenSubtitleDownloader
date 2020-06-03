@@ -16,9 +16,9 @@ namespace OpenSubtitleDownloader.Config
                 Extensions.Add(config[$"Extensions:{count++}"]);
             }
             Directories = new Directory(config);
-            OpenSubtitles = new OpenSubtitles(config);
+            OpenSubtitles = new OpenSubtitlesConfig(config);
         }
-        public OpenSubtitles OpenSubtitles { get; set; }
+        public OpenSubtitlesConfig OpenSubtitles { get; set; }
         public Directory Directories { get; set; }
         public IList<string> Extensions { get; set; }
     }

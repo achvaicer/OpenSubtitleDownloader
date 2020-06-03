@@ -2,9 +2,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace OpenSubtitleDownloader.Config
 {
-    public class OpenSubtitles
+    public class OpenSubtitlesConfig
     {
-        public OpenSubtitles(IConfigurationRoot config)
+        public OpenSubtitlesConfig(IConfigurationRoot config)
         {
             UserAgent = config["OpenSubtitles:UserAgent"];
             Language = config["OpenSubtitles:Language"];

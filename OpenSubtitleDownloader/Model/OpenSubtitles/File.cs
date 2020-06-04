@@ -6,7 +6,7 @@ namespace OpenSubtitleDownloader.Model.OpenSubtitles
     {
 
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("cd_number")]
         public int CdNumber { get; set; }

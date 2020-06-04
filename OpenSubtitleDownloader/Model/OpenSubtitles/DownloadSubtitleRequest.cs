@@ -6,7 +6,7 @@ namespace OpenSubtitleDownloader.Model.OpenSubtitles
     {
 
         [JsonProperty("file_id")]
-        public int FileId { get; set; }
+        public long FileId { get; set; }
 
         [JsonProperty("file_name")]
         public string FileName { get; set; }

@@ -7,13 +7,15 @@ using System.Threading;
 using OpenSubtitleDownloader.Config;
 
 using OpenSubtitleDownloader.Comparers;
+using OpenSubtitleDownloader.Model;
+using OpenSubtitleDownloader.Model.OpenSubtitles;
 
 namespace OpenSubtitleDownloader
 {
     public partial class Worker 
     {
         private readonly RuntimeConfig _runtimeConfig;
-        
+        private readonly OpenSubtitlesClient _client;
 
         private readonly IList<IEqualityComparer<string>> Comparers = new List<IEqualityComparer<string>>()
             {
@@ -27,7 +29,7 @@ namespace OpenSubtitleDownloader
         public Worker(RuntimeConfig runtimeConfig)
         {
             _runtimeConfig = runtimeConfig;
-
+            _client = new OpenSubtitlesClient(_runtimeConfig.OpenSubtitles);
         }
 
         
@@ -61,7 +63,7 @@ namespace OpenSubtitleDownloader
             var files =  extensions.SelectMany(x => System.IO.Directory.EnumerateFiles(directory, x));
             foreach (var file in files)
             {
-                if (!File.Exists(Path.ChangeExtension(file, "srt")))
+                if (!System.IO.File.Exists(Path.ChangeExtension(file, "srt")))
                 {
                     SearchSubtitle(file);
                 }
@@ -72,11 +74,13 @@ namespace OpenSubtitleDownloader
         {
             try
             {
-                var subtitles = new string[] {};//_client.SearchSubtitlesFromFile(Language, file);
-                var subtitle = FindBestFit(file, subtitles);
+                var filename = Path.GetFileName(file);
+                var hash = HashGenerator.ComputeMovieHash(file);
+                var subtitles = _client.SearchMovieSubtitles(filename, hash);
+                var subtitleId = FindBestFit(file, subtitles);
 
-                if (subtitle == null) return;
-                DownloadSubtitle(file, subtitle);
+                if (subtitleId == null) return;
+                DownloadSubtitle(file, subtitleId.Value);
             }
             catch (System.Exception exception)
             {
@@ -84,23 +88,23 @@ namespace OpenSubtitleDownloader
             }
         }
 
-        private void DownloadSubtitle(string file, string subtitle)
+        private void DownloadSubtitle(string file, long subtitleId)
         {
-            var downloaded =  "";//_client.DownloadSubtitleToPath(Path.GetDirectoryName(file), subtitle);
+            var downloaded =  _client.DownloadSubtitle(Path.GetFileName(file), subtitleId, Path.GetFullPath(file));
             var comp = new ExactEqualyComparer();
             if (comp.Equals(file, downloaded)) return;
-            File.Move(downloaded, Path.ChangeExtension(file, Path.GetExtension(downloaded)));
+            System.IO.File.Move(downloaded, Path.ChangeExtension(file, Path.GetExtension(downloaded)));
             //_logger.Info("Downloaded subtitle for {0}", file);
         }
 
-        private string FindBestFit(string file, IList<string> subtitles)
+        private long? FindBestFit(string file, IList<Data> subtitles)
         {
             var filename = Path.GetFileNameWithoutExtension(file);
             foreach (var comparer in Comparers)
             {
-                var subtitle = subtitles.FirstOrDefault(x => comparer.Equals(Path.GetFileNameWithoutExtension(x/*.SubtitleFileName*/), filename));
+                var subtitle = subtitles.FirstOrDefault(x => comparer.Equals(Path.GetFileNameWithoutExtension(x.Attributes.Files.FirstOrDefault()?.FileName ?? ""), filename));
                 if (subtitle != null)
-                    return subtitle;
+                    return subtitle.Attributes.Files.First().Id;
             }
             return null;
         }

@@ -1,14 +1,18 @@
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace OpenSubtitleDownloader.Model.OpenSubtitles
 {
+    [DataContract]
     public class LoginRequest
     {
 
-        [JsonProperty("user")]
-        public User User { get; set; }
+        [JsonProperty("username")]
+        [DataMember(Name = "username")]
+        public string username { get; set; }
 
         [JsonProperty("password")]
-        public string Password { get; set; }
+        [DataMember(Name = "password")]
+        public string password { get; set; }
     }
 }

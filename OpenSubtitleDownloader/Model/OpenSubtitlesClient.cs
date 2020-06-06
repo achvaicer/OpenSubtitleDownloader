@@ -51,6 +51,7 @@ namespace OpenSubtitleDownloader
             request.AddParameter("query", name);
             request.AddParameter("type", type);
             request.AddParameter("moviehash", hash);
+            request.AddHeader("Authorization", _token);
 
             var response = _client.Post<SearchReleaseResponse>(request);
             return response.Data.Data;
@@ -60,7 +61,8 @@ namespace OpenSubtitleDownloader
         {
             var request = new RestRequest("download", Method.POST);
             request.AddJsonBody(new DownloadSubtitleRequest { FileId = subtitileId, FileName = filename, SubFormat = "srt"});
-
+            request.AddHeader("Authorization", _token);
+            
             var response = _client.Post<DownloadSubtitleResponse>(request);
             var webclient = new WebClient();
             string fileName = Path.Combine(path, response.Data.FileName);

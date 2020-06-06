@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace OpenSubtitleDownloader.Model.OpenSubtitles
 {
-    public class DownloadSubtitleResponse
+    public class DownloadSubtitleResponse : BaseResponse
     {
 
         [JsonProperty("link")]

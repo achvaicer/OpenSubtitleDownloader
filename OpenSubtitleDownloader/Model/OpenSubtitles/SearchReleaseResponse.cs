@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OpenSubtitleDownloader.Model.OpenSubtitles
 {
-    public class SearchReleaseResponse
+    public class SearchReleaseResponse : BaseResponse
     {
 
         [JsonProperty("total_pages")]

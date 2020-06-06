@@ -74,7 +74,7 @@ namespace OpenSubtitleDownloader
         {
             try
             {
-                var filename = Path.GetFileName(file);
+                var filename = Path.GetFileNameWithoutExtension(file);
                 var hash = HashGenerator.ComputeMovieHash(file);
                 var subtitles = _client.SearchMovieSubtitles(filename, hash);
                 var subtitleId = FindBestFit(file, subtitles);
@@ -99,6 +99,7 @@ namespace OpenSubtitleDownloader
 
         private long? FindBestFit(string file, IList<Data> subtitles)
         {
+            if (subtitles == null || !subtitles.Any()) return null;
             var filename = Path.GetFileNameWithoutExtension(file);
             foreach (var comparer in Comparers)
             {
